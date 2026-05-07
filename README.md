@@ -2,6 +2,12 @@
 
 > **全新架构：所有组件直接运行在 iStoreOS 路由器上 **
 
+## 📖 图形操作指南
+
+> 浏览器直接打开以下 HTML 文件即可查看完整的图形化操作指南（含界面截图和操作流程）：
+>
+> 👉 **[`hermes-istoreos-operation-guide.html`](./hermes-istoreos-operation-guide.html)** — 双击打开，无需任何服务器
+
 将 AI 能力直接集成到你的 iStoreOS 路由器中。通过 LLM API（OpenRouter/OpenAI/DeepSeek）实现智能对话，并直接控制路由器的软件包、服务和系统配置。
 
 ## 系统架构
