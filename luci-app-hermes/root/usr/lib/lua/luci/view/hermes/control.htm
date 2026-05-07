@@ -1,0 +1,111 @@
+<%#
+    Hermes Agent Router Control - 路由器管理
+    软件包管理 + 服务管理 + 系统工具
+-%>
+<%+header%>
+
+<div class="hermes-app" id="hermes-control">
+    <div class="cbi-section">
+        <h2><%:路由器管理%></h2>
+        <p><%:直接管理路由器上的软件包、服务和系统配置。所有操作通过本地 API 执行。%></p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 标签页切换 -->
+    <!-- ============================================================ -->
+    <div class="hermes-tabs">
+        <button class="hermes-tab hermes-tab-active" data-tab="packages" onclick="hermesSwitchTab('packages')">
+            📦 <span><%:软件包管理%></span>
+        </button>
+        <button class="hermes-tab" data-tab="services" onclick="hermesSwitchTab('services')">
+            ⚙️ <span><%:服务管理%></span>
+        </button>
+        <button class="hermes-tab" data-tab="system" onclick="hermesSwitchTab('system')">
+            🖥️ <span><%:系统信息%></span>
+        </button>
+        <button class="hermes-tab" data-tab="terminal" onclick="hermesSwitchTab('terminal')">
+            💻 <span><%:命令终端%></span>
+        </button>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 软件包管理 -->
+    <!-- ============================================================ -->
+    <div id="hermes-tab-packages" class="hermes-tab-content hermes-tab-content-active">
+        <div class="cbi-section">
+            <h3><%:软件包管理%></h3>
+            <div class="hermes-actions" style="margin-bottom:10px;">
+                <input type="text" id="hermes-pkg-search" placeholder="<%:搜索软件包...%>"
+                    style="flex:1; padding:6px 10px; border:1px solid var(--card-border,#ddd); border-radius:4px;"
+                    onkeyup="if(event.key==='Enter')hermesSearchPackages()">
+                <button class="cbi-button cbi-button-apply" onclick="hermesSearchPackages()"><%:搜索%></button>
+                <button class="cbi-button cbi-button-action" onclick="hermesUpdatePackages()"><%:更新列表%></button>
+            </div>
+            <div id="hermes-pkg-list">
+                <div class="hermes-table-placeholder"><%:正在加载软件包列表...%></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 服务管理 -->
+    <!-- ============================================================ -->
+    <div id="hermes-tab-services" class="hermes-tab-content">
+        <div class="cbi-section">
+            <h3><%:服务管理%></h3>
+            <div class="hermes-actions" style="margin-bottom:10px;">
+                <input type="text" id="hermes-svc-search" placeholder="<%:搜索服务...%>"
+                    style="flex:1; padding:6px 10px; border:1px solid var(--card-border,#ddd); border-radius:4px;"
+                    onkeyup="if(event.key==='Enter')hermesSearchServices()">
+                <button class="cbi-button cbi-button-apply" onclick="hermesSearchServices()"><%:搜索%></button>
+                <button class="cbi-button cbi-button-action" onclick="hermesRefreshServices()"><%:刷新%></button>
+            </div>
+            <div id="hermes-svc-list">
+                <div class="hermes-table-placeholder"><%:正在加载服务列表...%></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 系统信息 -->
+    <!-- ============================================================ -->
+    <div id="hermes-tab-system" class="hermes-tab-content">
+        <div class="cbi-section">
+            <h3><%:系统信息%></h3>
+            <div id="hermes-system-info">
+                <div class="hermes-table-placeholder"><%:正在加载系统信息...%></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 命令终端 -->
+    <!-- ============================================================ -->
+    <div id="hermes-tab-terminal" class="hermes-tab-content">
+        <div class="cbi-section">
+            <h3><%:命令终端%></h3>
+            <p style="font-size:13px; color:var(--text-muted,#666);"><%:直接执行 Shell 命令。注意：部分危险命令被限制执行。%></p>
+            <div class="hermes-actions" style="margin-bottom:10px;">
+                <input type="text" id="hermes-term-input" placeholder="<%:输入命令...例如: ls -la /etc/config%>"
+                    style="flex:1; padding:6px 10px; border:1px solid var(--card-border,#ddd); border-radius:4px; font-family:monospace;"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();hermesExecCommand()}">
+                <button class="cbi-button cbi-button-apply" onclick="hermesExecCommand()"><%:执行%></button>
+                <button class="cbi-button cbi-button-reset" onclick="hermesClearTerminal()"><%:清空%></button>
+            </div>
+            <pre id="hermes-term-output" style="background:#1e293b; color:#e2e8f0; padding:15px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.5; min-height:200px; max-height:500px; overflow-y:auto;"><%:等待命令...%></pre>
+        </div>
+    </div>
+</div>
+
+<%+footer%>
+
+<script type="text/javascript" src="<%=resource%>/hermes/hermes.js"></script>
+<script type="text/javascript" src="<%=resource%>/hermes/control.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+    document.addEventListener('DOMContentLoaded', function() {
+        // 启动时加载软件包列表
+        hermesSearchPackages();
+    });
+//]]>
+</script>

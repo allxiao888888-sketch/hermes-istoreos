@@ -1,0 +1,38 @@
+{
+  "name": "luci-app-hermes",
+  "version": "2.0.0",
+  "title": "Hermes Agent",
+  "description": "本地 AI 助手 — 直接在 iStoreOS 路由器上运行。通过 LLM API 实现 AI 聊天、软件包管理（opkg）、服务管理、系统监控和命令终端。无需外部服务器。",
+  "tags": ["ai", "assistant", "chat", "openclaw", "router", "opkg", "manager"],
+  "author": "OpenClaw Community",
+  "website": "https://github.com/openclaw/openclaw",
+  "category": "services",
+  "icon": "robot",
+  "dependencies": ["python3", "python3-light"],
+  "architecture": "all",
+  "maintainer": "OpenClaw Hermes",
+  "revision": 2,
+  "screenshots": [],
+  "changelog": [
+    {
+      "version": "2.0.0",
+      "date": "2026-05-07",
+      "changes": [
+        "完全重构: 全部在路由器本地运行，无需 macOS 服务器",
+        "新增: zero-dependency Python API 服务器 (stdlib only)",
+        "新增: AI 聊天 (支持 OpenRouter/OpenAI/DeepSeek)",
+        "新增: 软件包管理 (opkg 安装/卸载/更新)",
+        "新增: 服务管理 (启动/停止/重启)",
+        "新增: 系统信息和网络状态",
+        "新增: 命令终端 (Shell 执行)",
+        "新增: 开机自启服务 (init.d)",
+        "改进: 仪表盘显示路由器本地状态",
+        "移除: 对 macOS 外部服务器的依赖"
+      ]
+    }
+  ],
+  "readme": {
+    "zh-cn": "## Hermes Agent for iStoreOS v2.0\n\n### 全新架构 — 完全在路由器本地运行！\n\n无需 macOS 主机，所有组件直接运行在 iStoreOS 路由器上。\n\n### 功能\n- 🤖 **AI 聊天** — 通过 OpenRouter/OpenAI/DeepSeek 等 LLM API 对话\n- 📦 **软件包管理** — 安装/卸载/更新 opkg 软件包\n- ⚙️ **服务管理** — 启动/停止/重启系统服务\n- 🖥️ **系统信息** — CPU、内存、磁盘、网络状态\n- 💻 **命令终端** — 直接在网页中执行 Shell 命令\n\n### 前置要求\n- iStoreOS 路由器 (OpenWRT 21.02+)\n- 已安装 python3 (opkg install python3)\n- LLM API 密钥（免费可用 OpenRouter）\n\n### 使用方法\n安装后进入: 服务 > Hermes Agent > 设置\n1. 填写 LLM API 密钥\n2. 选择 AI 提供商和模型\n3. 启动 API 服务: /etc/init.d/hermes-router-api start\n4. 开始使用 AI 聊天和路由器管理！"
+  },
+  "store_type": "luci"
+}
