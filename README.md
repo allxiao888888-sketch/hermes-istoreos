@@ -7,6 +7,8 @@
 > 浏览器直接打开以下 HTML 文件即可查看完整的图形化操作指南（含界面截图和操作流程）：
 >
 > 👉 **[`hermes-istoreos-operation-guide.html`](./hermes-istoreos-operation-guide.html)** — 双击打开，无需任何服务器
+>
+> 🌐 **在线查看（无需下载）**: [https://raw.githack.com/allxiao888888-sketch/hermes-istoreos/main/hermes-istoreos-operation-guide.html](https://raw.githack.com/allxiao888888-sketch/hermes-istoreos/main/hermes-istoreos-operation-guide.html)
 
 将 AI 能力直接集成到你的 iStoreOS 路由器中。通过 LLM API（OpenRouter/OpenAI/DeepSeek）实现智能对话，并直接控制路由器的软件包、服务和系统配置。
 

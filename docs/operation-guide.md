@@ -1,6 +1,8 @@
 # 🦞 Hermes Agent for iStoreOS — 图形化操作指南
 
 > **版本**: v2.0 | **运行方式**: 全路由器本地运行，无需外部服务器
+>
+> 🌐 **在线查看**: [https://raw.githack.com/allxiao888888-sketch/hermes-istoreos/main/hermes-istoreos-operation-guide.html](https://raw.githack.com/allxiao888888-sketch/hermes-istoreos/main/hermes-istoreos-operation-guide.html)
 
 ---
 
