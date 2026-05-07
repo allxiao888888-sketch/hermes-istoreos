@@ -1,0 +1,76 @@
+<%#
+    Hermes Agent Chat - AI 聊天界面
+    本地运行，通过 LLM API 直接控制路由器
+-%>
+<%+header%>
+
+<div class="hermes-app" id="hermes-chat">
+    <div class="cbi-section">
+        <h2><%:AI 聊天%></h2>
+        <p><%:直接与 AI 对话，控制路由器系统。可以问任何关于路由器的问题，或者要求执行操作。%></p>
+    </div>
+
+    <!-- 聊天容器 -->
+    <div id="hermes-chat-container">
+        <!-- 消息区域 -->
+        <div id="hermes-chat-messages">
+            <div class="hermes-chat-welcome">
+                <div class="hermes-chat-welcome-icon">🦞</div>
+                <h3><%:你好！我是路由器 AI 助手%></h3>
+                <p><%:我已经连接到本地 Hermes API，可以帮你管理 iStoreOS 路由器。%></p>
+                <div class="hermes-chat-suggestions">
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('查看路由器系统状态')">
+                        🖥️ <%:系统状态%>
+                    </button>
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('列出所有已安装的软件包')">
+                        📦 <%:软件包列表%>
+                    </button>
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('查看运行中的服务')">
+                        ⚙️ <%:运行服务%>
+                    </button>
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('查看网络接口状态')">
+                        🌐 <%:网络状态%>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div id="hermes-chat-input-area">
+            <textarea id="hermes-chat-input"
+                placeholder="<%:输入消息...例如: 安装 nginx 服务器 或 重启 dnsmasq 服务%>"
+                rows="3"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();hermesSendMessage()}">
+            </textarea>
+            <div id="hermes-chat-input-tools">
+                <div class="hermes-chat-session-info">
+                    <span id="hermes-chat-session-badge">
+                        <span class="hermes-status-dot hermes-status-ok" style="width:8px;height:8px;"></span>
+                        <%:本地运行%>
+                    </span>
+                </div>
+                <div class="hermes-chat-input-actions">
+                    <button id="hermes-chat-clear-btn" class="cbi-button cbi-button-reset" onclick="hermesClearChat()" title="<%:清空对话%>">
+                        🗑️
+                    </button>
+                    <button id="hermes-chat-send-btn" class="cbi-button cbi-button-apply" onclick="hermesSendMessage()">
+                        <%:发送%> ▶
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%+footer%>
+
+<script type="text/javascript" src="<%=resource%>/hermes/hermes.js"></script>
+<script type="text/javascript" src="<%=resource%>/hermes/chat.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+    // 初始化聊天
+    document.addEventListener('DOMContentLoaded', function() {
+        hermesChatInit();
+    });
+//]]>
+</script>

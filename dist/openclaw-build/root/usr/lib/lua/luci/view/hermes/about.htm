@@ -1,0 +1,75 @@
+<%#
+    Hermes Agent About - 关于页面
+    LuCI template (DTL)
+-%>
+<%+header%>
+
+<div class="hermes-app" id="hermes-about">
+    <div class="cbi-section">
+        <h2><%:关于 Hermes Agent 插件%></h2>
+    </div>
+
+    <div class="cbi-section">
+        <div style="text-align:center; padding:20px;">
+            <div style="font-size:64px; margin-bottom:10px;">🦞</div>
+            <h3>OpenClaw / Hermes Agent</h3>
+            <p style="color:#666;margin:5px 0;">
+                <%:一个强大的 AI 代理系统，通过 iStoreOS 路由器控制 macOS 上的 Hermes Agent。/%，通过 iStoreOS 路由器控制 macOS 上的 Hermes Agent。%>
+            </p>
+        </div>
+    </div>
+
+    <div class="cbi-section">
+        <h3><%:系统架构%></h3>
+        <div style="font-family:monospace; background:#f5f5f5; padding:15px; border-radius:5px; line-height:1.8; white-space:pre;">
+┌─────────────────────┐     ┌──────────────────────┐
+│   iStoreOS 路由器    │     │   macOS 主机          │
+│                     │     │                      │
+│  ┌───────────────┐  │     │  ┌────────────────┐  │
+│  │ LuCI Web UI    │  │     │  │ OpenClaw API   │  │
+│  │ (hermes插件)   │──HTTP─┼─▶│ 网关 :9120      │  │
+│  └───────────────┘  │     │  └────────┬───────┘  │
+│                     │     │           │          │
+│  ┌───────────────┐  │     │  ┌────────▼───────┐  │
+│  │ iStoreOS 磁盘   │  │     │  │ Hermes Agent   │  │
+│  │ (插件配置)      │  │     │  │ API :9119      │  │
+│  └───────────────┘  │     │  └────────────────┘  │
+└─────────────────────┘     └──────────────────────┘
+        </div>
+    </div>
+
+    <div class="cbi-section">
+        <h3><%:组件清单%></h3>
+        <table class="cbi-section-table">
+            <tr>
+                <td><strong><%:组件%></strong></td>
+                <td><strong><%:位置%></strong></td>
+                <td><strong><%:说明%></strong></td>
+            </tr>
+            <tr>
+                <td>openclaw-api</td>
+                <td>macOS (Python)</td>
+                <td><%:API 网关，包装 Hermes Agent 为 REST API%></td>
+            </tr>
+            <tr>
+                <td>luci-app-hermes</td>
+                <td>iStoreOS (LuCI)</td>
+                <td><%:路由器 Web 管理插件%></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="cbi-section">
+        <h3><%:使用说明%></h3>
+        <ol style="line-height:1.8;">
+            <li><%:在 macOS 上安装依赖: pip install -r requirements.txt%></li>
+            <li><%:启动 openclaw-api: python3 server.py --port 9120%></li>
+            <li><%:建议添加为开机启动或 launchd 服务%></li>
+            <li><%:在 iStoreOS 设置中填入 macOS 的 IP 地址和端口%></li>
+            <li><%:点击"测试连接"验证连通性%></li>
+            <li><%:开始使用聊天功能！%></li>
+        </ol>
+    </div>
+</div>
+
+<%+footer%>

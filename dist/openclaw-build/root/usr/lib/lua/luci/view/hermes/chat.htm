@@ -1,0 +1,79 @@
+<%#
+    Hermes Agent Chat - 聊天界面
+    LuCI template (DTL)
+-%>
+<%+header%>
+
+<div class="hermes-app" id="hermes-chat">
+    <div class="cbi-section">
+        <h2><%:Hermes Agent 聊天%></h2>
+        <p><%:直接与你的 AI 助手对话。输入任何问题，Hermes Agent 会调用工具帮你处理。%></p>
+    </div>
+
+    <!-- 聊天容器 -->
+    <div id="hermes-chat-container">
+        <!-- 消息区域 -->
+        <div id="hermes-chat-messages">
+            <div class="hermes-chat-welcome">
+                <div class="hermes-chat-welcome-icon">🤖</div>
+                <h3><%:你好！我是你的 AI 助手%></h3>
+                <p><%:我已经连接到 macOS 上的 Hermes Agent。有什么可以帮你的？%></p>
+                <div class="hermes-chat-suggestions">
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('帮我查询系统状态')">
+                        🖥️ <%:查询系统状态%>
+                    </button>
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('今天有什么待办事项？')">
+                        📋 <%:待办事项%>
+                    </button>
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('帮我写一段 Python 代码')">
+                        💻 <%:编写代码%>
+                    </button>
+                    <button class="hermes-chat-suggestion" onclick="hermesSendQuick('搜索最新的科技新闻')">
+                        🔍 <%:搜索新闻%>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div id="hermes-chat-input-area">
+            <textarea id="hermes-chat-input"
+                placeholder="<%:输入消息...%>"
+                rows="3"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();hermesSendMessage()}">
+            </textarea>
+            <div id="hermes-chat-input-tools">
+                <div class="hermes-chat-session-info">
+                    <span id="hermes-chat-session-badge">
+                        <%:新会话%>
+                    </span>
+                </div>
+                <div class="hermes-chat-input-actions">
+                    <button id="hermes-chat-clear-btn" class="cbi-button cbi-button-reset" onclick="hermesClearChat()" title="<%:清空对话%>">
+                        🗑️
+                    </button>
+                    <button id="hermes-chat-send-btn" class="cbi-button cbi-button-apply" onclick="hermesSendMessage()">
+                        <%:发送%> ▶
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%+footer%>
+
+<script type="text/javascript" src="<%=resource%>/hermes/hermes.js"></script>
+<script type="text/javascript" src="<%=resource%>/hermes/chat.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+    var hermesServerHost = '<%=luci.model.uci.cursor():get("hermes", "config", "server_host") or "192.168.1.100"%>';
+    var hermesServerPort = '<%=luci.model.uci.cursor():get("hermes", "config", "server_port") or "9120"%>';
+    var hermesApiKey = '<%=luci.model.uci.cursor():get("hermes", "config", "api_key") or ""%>';
+
+    // 页面加载完成后的初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        hermesChatInit();
+    });
+//]]>
+</script>

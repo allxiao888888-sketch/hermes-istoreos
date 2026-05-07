@@ -1,6 +1,6 @@
 # 🦞 Hermes Agent for iStoreOS v2.0
 
-> **全新架构：所有组件直接运行在 iStoreOS 路由器上，无需外部 macOS 服务器！**
+> **全新架构：所有组件直接运行在 iStoreOS 路由器上 **
 
 将 AI 能力直接集成到你的 iStoreOS 路由器中。通过 LLM API（OpenRouter/OpenAI/DeepSeek）实现智能对话，并直接控制路由器的软件包、服务和系统配置。
 
@@ -189,7 +189,6 @@ make package/luci-app-hermes/compile V=s
 
 ## 从 v1.x 升级
 
-v2.0 是完全重写，架构从「iStoreOS → macOS 远程服务器」改为「所有组件在路由器本地运行」。
 
 **升级步骤:**
 1. 卸载旧版插件
