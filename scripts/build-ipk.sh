@@ -7,9 +7,10 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-HERMES_ROUTER_API_DIR="$SCRIPT_DIR/hermes-router-api"
-LUCI_APP_DIR="$SCRIPT_DIR/luci-app-hermes"
-DIST_DIR="$SCRIPT_DIR/dist"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+HERMES_ROUTER_API_DIR="$ROOT_DIR/hermes-router-api"
+LUCI_APP_DIR="$ROOT_DIR/luci-app-hermes"
+DIST_DIR="$ROOT_DIR/dist"
 PKG_NAME="luci-app-hermes"
 PKG_VERSION="2.0.0"
 PKG_ARCH="all"

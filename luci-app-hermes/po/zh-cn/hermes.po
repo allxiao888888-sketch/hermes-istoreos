@@ -1,0 +1,311 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+# Controller menu entries
+msgid "Hermes Agent"
+msgstr "Hermes Agent"
+
+msgid "仪表盘"
+msgstr "Dashboard"
+
+msgid "AI 聊天"
+msgstr "AI Chat"
+
+msgid "路由器管理"
+msgstr "Router Management"
+
+msgid "设置"
+msgstr "Settings"
+
+msgid "关于"
+msgstr "About"
+
+# Dashboard page
+msgid "Hermes Agent 仪表盘"
+msgstr "Hermes Agent Dashboard"
+
+msgid "iStoreOS 本地 AI 助手，直接控制路由器软件和系统。"
+msgstr "Local AI assistant for iStoreOS. Control router software and system directly."
+
+msgid "API 状态"
+msgstr "API Status"
+
+msgid "检测中..."
+msgstr "Checking..."
+
+msgid "AI 连接"
+msgstr "AI Connection"
+
+msgid "主机名"
+msgstr "Hostname"
+
+msgid "运行时间"
+msgstr "Uptime"
+
+msgid "系统资源"
+msgstr "System Resources"
+
+msgid "CPU"
+msgstr "CPU"
+
+msgid "负载"
+msgstr "Load"
+
+msgid "内存"
+msgstr "Memory"
+
+msgid "已用 / 总计 MB"
+msgstr "Used / Total MB"
+
+msgid "存储"
+msgstr "Storage"
+
+msgid "根分区"
+msgstr "Root Partition"
+
+msgid "已安装软件包"
+msgstr "Installed Packages"
+
+msgid "快捷操作"
+msgstr "Quick Actions"
+
+msgid "网络接口"
+msgstr "Network Interfaces"
+
+msgid "正在加载..."
+msgstr "Loading..."
+
+msgid "刷新"
+msgstr "Refresh"
+
+# Chat page
+msgid "直接与 AI 对话，控制路由器系统。可以问任何关于路由器的问题，或者要求执行操作。"
+msgstr "Chat with AI to control your router system. Ask any router-related questions or request actions."
+
+msgid "你好！我是路由器 AI 助手"
+msgstr "Hello! I'm your Router AI Assistant"
+
+msgid "我已经连接到本地 Hermes API，可以帮你管理 iStoreOS 路由器。"
+msgstr "I'm connected to the local Hermes API and can help you manage your iStoreOS router."
+
+msgid "系统状态"
+msgstr "System Status"
+
+msgid "软件包列表"
+msgstr "Package List"
+
+msgid "运行服务"
+msgstr "Running Services"
+
+msgid "网络状态"
+msgstr "Network Status"
+
+msgid "输入消息...例如: 安装 nginx 服务器 或 重启 dnsmasq 服务"
+msgstr "Enter message... e.g.: Install nginx server or Restart dnsmasq service"
+
+msgid "本地运行"
+msgstr "Local Runtime"
+
+msgid "清空对话"
+msgstr "Clear Chat"
+
+msgid "发送"
+msgstr "Send"
+
+# Control page
+msgid "直接管理路由器上的软件包、服务和系统配置。所有操作通过本地 API 执行。"
+msgstr "Directly manage packages, services, and system configuration on the router. All operations are executed via the local API."
+
+msgid "软件包管理"
+msgstr "Package Management"
+
+msgid "服务管理"
+msgstr "Service Management"
+
+msgid "系统信息"
+msgstr "System Information"
+
+msgid "命令终端"
+msgstr "Command Terminal"
+
+msgid "搜索软件包..."
+msgstr "Search packages..."
+
+msgid "搜索"
+msgstr "Search"
+
+msgid "更新列表"
+msgstr "Update List"
+
+msgid "正在加载软件包列表..."
+msgstr "Loading package list..."
+
+msgid "搜索服务..."
+msgstr "Search services..."
+
+msgid "正在加载服务列表..."
+msgstr "Loading service list..."
+
+msgid "正在加载系统信息..."
+msgstr "Loading system info..."
+
+msgid "直接执行 Shell 命令。注意：部分危险命令被限制执行。"
+msgstr "Execute shell commands directly. Note: some dangerous commands are restricted."
+
+msgid "输入命令...例如: ls -la /etc/config"
+msgstr "Enter command... e.g.: ls -la /etc/config"
+
+msgid "执行"
+msgstr "Execute"
+
+msgid "清空"
+msgstr "Clear"
+
+msgid "等待命令..."
+msgstr "Waiting for command..."
+
+msgid "接口"
+msgstr "Interface"
+
+msgid "状态"
+msgstr "Status"
+
+msgid "MAC 地址"
+msgstr "MAC Address"
+
+msgid "IP 地址"
+msgstr "IP Address"
+
+# Config page
+msgid "Hermes Agent 设置"
+msgstr "Hermes Agent Settings"
+
+msgid "配置 AI 提供商、API 密钥和本地服务参数。所有服务运行在本路由器上。"
+msgstr "Configure AI provider, API key, and local service parameters. All services run on this router."
+
+msgid "AI 提供商"
+msgstr "AI Provider"
+
+msgid "提供商"
+msgstr "Provider"
+
+msgid "选择 AI 模型提供商"
+msgstr "Select AI model provider"
+
+msgid "模型"
+msgstr "Model"
+
+msgid "AI 模型名称（例如: google/gemini-2.0-flash-lite-preview-02-05）"
+msgstr "AI model name (e.g.: google/gemini-2.0-flash-lite-preview-02-05)"
+
+msgid "API 密钥"
+msgstr "API Key"
+
+msgid "LLM API 的认证密钥（OpenRouter/OpenAI/DeepSeek 等）"
+msgstr "Authentication key for LLM API (OpenRouter/OpenAI/DeepSeek etc.)"
+
+msgid "API 地址"
+msgstr "API Base URL"
+
+msgid "API 基础 URL（默认可不填，自定义提供商时填写）"
+msgstr "API base URL (leave default, fill in for custom provider)"
+
+msgid "本地服务"
+msgstr "Local Service"
+
+msgid "本地 API 密钥"
+msgstr "Local API Key"
+
+msgid "Hermes API 的认证密钥（可选，留空则不认证）"
+msgstr "Hermes API authentication key (optional, no auth if empty)"
+
+msgid "设置后前端和外部访问需要携带 Authorization: Bearer <密钥>"
+msgstr "When set, frontend and external access require Authorization: Bearer <key>"
+
+msgid "本地端口"
+msgstr "Local Port"
+
+msgid "Hermes API 服务器监听端口（默认 9120）"
+msgstr "Hermes API server listening port (default 9120)"
+
+msgid "连接测试"
+msgstr "Connection Test"
+
+msgid "测试连接"
+msgstr "Test Connection"
+
+msgid "显示设置"
+msgstr "Display Settings"
+
+msgid "主题"
+msgstr "Theme"
+
+msgid "插件 UI 主题"
+msgstr "Plugin UI theme"
+
+msgid "自动（跟随系统）"
+msgstr "Auto (follow system)"
+
+msgid "深色"
+msgstr "Dark"
+
+msgid "浅色"
+msgstr "Light"
+
+msgid "自动刷新间隔（秒）"
+msgstr "Auto-refresh interval (seconds)"
+
+msgid "仪表盘自动刷新间隔，设为 0 禁用"
+msgstr "Dashboard auto-refresh interval, set to 0 to disable"
+
+# About page
+msgid "关于 Hermes Agent 插件"
+msgstr "About Hermes Agent Plugin"
+
+msgid "本地 AI 助手 — 直接在 iStoreOS 路由器上运行，通过 LLM API 控制路由器系统。"
+msgstr "Local AI assistant - runs directly on iStoreOS router, controls router system via LLM API."
+
+msgid "系统架构"
+msgstr "System Architecture"
+
+msgid "组件清单"
+msgstr "Component List"
+
+msgid "组件"
+msgstr "Component"
+
+msgid "位置"
+msgstr "Location"
+
+msgid "说明"
+msgstr "Description"
+
+msgid "Python API 网关（零外部依赖）"
+msgstr "Python API gateway (zero external dependencies)"
+
+msgid "LuCI 前端插件"
+msgstr "LuCI frontend plugin"
+
+msgid "开机自启脚本"
+msgstr "Auto-start script"
+
+msgid "使用说明"
+msgstr "Usage Instructions"
+
+msgid "安装 Python3: opkg update && opkg install python3"
+msgstr "Install Python3: opkg update && opkg install python3"
+
+msgid "上传 hermes-router-api/server.py 到 /usr/libexec/hermes-router-api/"
+msgstr "Upload hermes-router-api/server.py to /usr/libexec/hermes-router-api/"
+
+msgid "启动 API 服务器: python3 /usr/libexec/hermes-router-api/server.py &"
+msgstr "Start API server: python3 /usr/libexec/hermes-router-api/server.py &"
+
+msgid "或使用 init.d 服务: /etc/init.d/hermes-router-api start"
+msgstr "Or use init.d service: /etc/init.d/hermes-router-api start"
+
+msgid "进入 服务 > Hermes Agent > 设置，配置 LLM API 密钥"
+msgstr "Go to Services > Hermes Agent > Settings, configure LLM API key"
+
+msgid "开始使用 AI 聊天和路由器管理功能！"
+msgstr "Start using AI chat and router management features!"

@@ -3,6 +3,12 @@
 Hermes Agent for iStoreOS — .ipk 包构建器
 使用 Python 生成标准 SVR4 ar 格式的 .ipk 文件
 兼容 OpenWrt / iStoreOS 的 opkg 包管理器
+
+文件结构参照 luci-app-picoclaw:
+  luasrc/          → 安装到 /usr/lib/lua/luci/
+  htdocs/           → 安装到 /www/luci-static/resources/
+  root/etc/         → 安装到 /etc/
+  root/usr/libexec/ → 安装到 /usr/libexec/
 """
 
 import hashlib
@@ -17,9 +23,9 @@ import textwrap
 # 配置
 # =============================================================================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-HERMES_ROUTER_API_DIR = os.path.join(SCRIPT_DIR, "hermes-router-api")
-LUCI_APP_DIR = os.path.join(SCRIPT_DIR, "luci-app-hermes")
-DIST_DIR = os.path.join(SCRIPT_DIR, "dist")
+ROOT_DIR = os.path.dirname(SCRIPT_DIR)
+LUCI_APP_DIR = os.path.join(ROOT_DIR, "luci-app-hermes")
+DIST_DIR = os.path.join(ROOT_DIR, "dist")
 
 PKG_NAME = "luci-app-hermes"
 PKG_VERSION = "2.0.0"
@@ -30,47 +36,42 @@ def create_data_tar_gz() -> bytes:
     """创建 data.tar.gz — 所有要安装的文件"""
     buf = io.BytesIO()
     with tarfile.open(fileobj=buf, mode="w:gz") as tar:
-        # LuCI 控制器
-        tar.add(
-            os.path.join(LUCI_APP_DIR, "root/usr/lib/lua/luci/controller/hermes.lua"),
-            arcname="usr/lib/lua/luci/controller/hermes.lua",
-        )
-        # CBI 模型
-        tar.add(
-            os.path.join(LUCI_APP_DIR, "root/usr/lib/lua/luci/model/cbi/hermes.lua"),
-            arcname="usr/lib/lua/luci/model/cbi/hermes.lua",
-        )
-        # 视图
-        views_dir = os.path.join(LUCI_APP_DIR, "root/usr/lib/lua/luci/view/hermes")
-        for fname in os.listdir(views_dir):
-            if fname.endswith(".htm"):
-                tar.add(
-                    os.path.join(views_dir, fname),
-                    arcname=f"usr/lib/lua/luci/view/hermes/{fname}",
-                )
-        # 前端资源
+        # LuCI 源文件: luasrc/ → /usr/lib/lua/luci/
+        luasrc_dir = os.path.join(LUCI_APP_DIR, "luasrc")
+        for root, dirs, files in os.walk(luasrc_dir):
+            for fname in files:
+                src_path = os.path.join(root, fname)
+                # 计算目标路径: luasrc/xxx → usr/lib/lua/luci/xxx
+                rel_path = os.path.relpath(src_path, luasrc_dir)
+                arcname = f"usr/lib/lua/luci/{rel_path}"
+                tar.add(src_path, arcname=arcname)
+
+        # 前端资源: htdocs/ → /www/luci-static/resources/hermes/
         htdocs_dir = os.path.join(LUCI_APP_DIR, "htdocs/luci-static/resources/hermes")
-        for fname in os.listdir(htdocs_dir):
-            tar.add(
-                os.path.join(htdocs_dir, fname),
-                arcname=f"www/luci-static/resources/hermes/{fname}",
-            )
-        # 配置文件
-        tar.add(
-            os.path.join(LUCI_APP_DIR, "root/etc/config/hermes"),
-            arcname="etc/config/hermes",
-        )
-        # init.d 服务脚本 (设置可执行权限)
+        if os.path.isdir(htdocs_dir):
+            for fname in os.listdir(htdocs_dir):
+                src_path = os.path.join(htdocs_dir, fname)
+                if os.path.isfile(src_path):
+                    tar.add(src_path, arcname=f"www/luci-static/resources/hermes/{fname}")
+
+        # 配置文件: root/etc/config/ → /etc/config/
+        config_file = os.path.join(LUCI_APP_DIR, "root/etc/config/hermes")
+        if os.path.isfile(config_file):
+            tar.add(config_file, arcname="etc/config/hermes")
+
+        # init.d 服务脚本: root/etc/init.d/ → /etc/init.d/ (设置可执行权限)
         initd_src = os.path.join(LUCI_APP_DIR, "root/etc/init.d/hermes-router-api")
-        initd_info = tar.gettarinfo(initd_src, arcname="etc/init.d/hermes-router-api")
-        initd_info.mode = 0o755
-        with open(initd_src, "rb") as f:
-            tar.addfile(initd_info, f)
-        # Python API 服务器
-        tar.add(
-            os.path.join(HERMES_ROUTER_API_DIR, "server.py"),
-            arcname="usr/libexec/hermes-router-api/server.py",
-        )
+        if os.path.isfile(initd_src):
+            initd_info = tar.gettarinfo(initd_src, arcname="etc/init.d/hermes-router-api")
+            initd_info.mode = 0o755
+            with open(initd_src, "rb") as f:
+                tar.addfile(initd_info, f)
+
+        # Python API 服务器: root/usr/libexec/ → /usr/libexec/
+        server_py = os.path.join(LUCI_APP_DIR, "root/usr/libexec/hermes-router-api/server.py")
+        if os.path.isfile(server_py):
+            tar.add(server_py, arcname="usr/libexec/hermes-router-api/server.py")
+
     return buf.getvalue()
 
 
@@ -85,7 +86,7 @@ def create_control_tar_gz(data_tar_gz_size: int) -> bytes:
             Depends: python3, python3-light
             Provides: luci-app-hermes
             Source: https://github.com/allxiao888888-sketch/hermes-istoreos
-            License: GPL-2.0
+            License: MIT
             Section: luci
             Architecture: {PKG_ARCH}
             Maintainer: OpenClaw Hermes
@@ -165,22 +166,16 @@ def ar_write_entry(f, name: bytes, data: bytes):
     - 结束符: 0x60 0x0a
     - 文件数据: N 字节 (偶数对齐)
     """
-    # 确保文件名是 16 字节
-    if len(name) < 16:
-        name = name.ljust(16)
-    elif len(name) > 16:
-        # 对于长文件名，使用 GNU 扩展: "/<N>" 形式
-        name = name[:16]
+    name_bytes = name.ljust(16)[:16]
 
-    # SVR4/GNU ar 格式: 所有字段都是 ASCII 字符串，空格填充
     header = (
-        name.ljust(16)[:16] +                      # 文件名 (16 bytes)
-        b"0".ljust(12) +                           # 修改时间 (12 bytes)
-        b"0".ljust(6) +                            # 所有者 (6 bytes)
-        b"0".ljust(6) +                            # 组 (6 bytes)
-        b"100644".ljust(8) +                       # 文件模式 (8 bytes)
-        str(len(data)).encode().ljust(10) +        # 文件大小 (10 bytes)
-        b"`\n"                                     # 结束符 (2 bytes)
+        name_bytes +
+        b"0".ljust(12) +                            # 修改时间 (12 bytes)
+        b"0".ljust(6) +                             # 所有者 (6 bytes)
+        b"0".ljust(6) +                             # 组 (6 bytes)
+        b"100644".ljust(8) +                        # 文件模式 (8 bytes)
+        str(len(data)).encode().ljust(10) +         # 文件大小 (10 bytes)
+        b"`\n"                                      # 结束符 (2 bytes)
     )
     f.write(header)
     f.write(data)
