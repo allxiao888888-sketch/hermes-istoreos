@@ -396,16 +396,16 @@ def get_network_info():
 # LLM API 调用
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = """你是运行在 iStoreOS 路由器上的 AI 助手，你可以**直接操作路由器系统**。
+SYSTEM_PROMPT = """你是 iStoreOS 路由器的 AI 助手，可以操作系统和联网搜索。
 
-重要: 你有工具可以执行命令、管理软件包和服务。当用户要求操作时，**直接调用工具执行**，不要只建议命令。
-- 安装软件: 调用 manage_package action=install
-- 卸载软件: 调用 manage_package action=remove
-- 启停服务: 调用 manage_service action=start/stop/restart
-- 查看状态: 调用 run_command 或 get_system_info
-- 执行命令: 调用 run_command
+工具使用规则:
+- 每次只调用一个工具
+- 启停服务: manage_service，软件管理: manage_package，系统信息: get_system_info
+- 搜索最新资讯/天气/文档: web_search
+- 其他操作: run_command
+- 纯聊天问题不要调用工具
 
-请用中文回答。执行操作前简要说明你要做什么，然后直接调用工具。回答简洁实用。"""
+用中文简洁回复。"""
 
 # OpenAI-compatible function calling 工具定义
 TOOLS = [
@@ -486,6 +486,23 @@ TOOLS = [
                 "required": []
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "联网搜索最新信息。用于查询实时新闻、天气、技术文档等路由器本地无法获取的信息。",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "搜索关键词，例如: OpenWrt 最新版本, 深圳天气, Docker 安装教程"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
     }
 ]
 
@@ -528,20 +545,135 @@ def execute_tool(name, args):
         if not svc_name:
             return json.dumps({"error": "请指定服务名称"}, ensure_ascii=False)
         log("INFO", f"工具执行: manage_service {action} {svc_name}")
-        if action == "enable":
-            result = run_cmd(f"/etc/init.d/{svc_name} enable 2>&1", 10)
-        elif action == "disable":
-            result = run_cmd(f"/etc/init.d/{svc_name} disable 2>&1", 10)
-        else:
-            result = run_cmd(f"/etc/init.d/{svc_name} {action} 2>&1", 30)
-        return json.dumps(result, ensure_ascii=False)
+
+        if action in ("enable", "disable"):
+            result = run_cmd(f"/etc/init.d/{svc_name} {action} 2>&1", 10)
+            return json.dumps(result, ensure_ascii=False)
+
+        # start 时先检查 UCI enable 标志并自动启用
+        extra_info = []
+        if action == "start":
+            enable_check = run_cmd(
+                f"uci get {svc_name}.@config[0].enable 2>/dev/null || "
+                f"uci get {svc_name}.config.enable 2>/dev/null", 5)
+            if enable_check.get("success") and enable_check.get("stdout", "").strip() == "0":
+                run_cmd(f"uci set {svc_name}.config.enable='1' 2>/dev/null; "
+                        f"uci set {svc_name}.@config[0].enable='1' 2>/dev/null; "
+                        f"uci commit {svc_name} 2>/dev/null", 5)
+                extra_info.append("服务之前被禁用，已自动启用")
+
+        result = run_cmd(f"/etc/init.d/{svc_name} {action} 2>&1", 30)
+        time.sleep(2)
+        status_result = run_cmd(f"/etc/init.d/{svc_name} status 2>&1", 5)
+        ps_check = run_cmd(f"ps | grep -v grep | grep {svc_name} | head -3", 5)
+
+        return json.dumps({
+            "action": action,
+            "service": svc_name,
+            "command_output": result.get("stdout", "") or result.get("stderr", ""),
+            "command_success": result.get("success", False),
+            "service_status": status_result.get("stdout", "unknown").strip(),
+            "process_running": ps_check.get("stdout", "").strip() or "无相关进程",
+            "extra": "; ".join(extra_info) if extra_info else "",
+        }, ensure_ascii=False)
 
     elif name == "get_system_info":
         log("INFO", "工具执行: get_system_info")
         info = get_system_info()
         return json.dumps(info, ensure_ascii=False)
 
+    elif name == "web_search":
+        query = args.get("query", "")
+        if not query:
+            return json.dumps({"error": "请提供搜索关键词"}, ensure_ascii=False)
+        log("INFO", f"工具执行: web_search {query[:60]}")
+        return json.dumps(do_web_search(query), ensure_ascii=False)
+
     return json.dumps({"error": f"未知工具: {name}"}, ensure_ascii=False)
+
+
+def do_web_search(query):
+    """联网搜索 — 根据查询类型自动选择最佳来源"""
+    import urllib.parse
+    import re as _re
+    encoded = urllib.parse.quote(query)
+    qlower = query.lower()
+
+    # 1. 天气查询 → wttr.in (无需 API Key)
+    if any(w in qlower for w in ("天气", "weather", "气温", "温度", "下雨")):
+        city = query.replace("天气", "").replace("weather", "").strip()
+        if not city:
+            city = "Shenzhen"
+        try:
+            proc = subprocess.run(
+                ["curl", "-s", "--max-time", "6",
+                 f"https://wttr.in/{urllib.parse.quote(city)}?format=3&lang=zh"],
+                capture_output=True, text=True, timeout=8)
+            if proc.returncode == 0 and proc.stdout.strip():
+                return {"query": query, "weather": proc.stdout.strip(),
+                        "source": "wttr.in"}
+        except Exception:
+            pass
+
+    # 2. Wikipedia 知识查询
+    wiki_keywords = ("什么是", "什么是", "定义", "简介", "历史", "who is", "what is",
+                     "百科", "wiki", "开源项目", "协议", "算法")
+    if any(w in qlower for w in wiki_keywords) or len(query) < 30:
+        try:
+            wiki_query = query
+            for w in ("什么是", "什么是", "谁", "定义", "简介", "解释", "请", "告诉我"):
+                wiki_query = wiki_query.replace(w, "")
+            wiki_query = wiki_query.strip()[:50]
+            if wiki_query:
+                proc = subprocess.run(
+                    ["curl", "-s", "--max-time", "8",
+                     f"https://zh.wikipedia.org/api/rest_v1/page/summary/"
+                     f"{urllib.parse.quote(wiki_query)}",
+                     "-H", "User-Agent: HermesAgent/2.0"],
+                    capture_output=True, text=True, timeout=10)
+                if proc.returncode == 0:
+                    data = json.loads(proc.stdout)
+                    if data.get("extract"):
+                        return {
+                            "query": query,
+                            "title": data.get("title", ""),
+                            "answer": data["extract"][:800],
+                            "url": data.get("content_urls", {}).get("desktop", {}).get("page", ""),
+                            "source": "wikipedia.org"
+                        }
+        except Exception:
+            pass
+
+    # 3. DuckDuckGo Lite HTML 抓取 (通用搜索)
+    lite_url = f"https://lite.duckduckgo.com/lite/?q={encoded}"
+    try:
+        proc = subprocess.run(
+            ["curl", "-s", "--max-time", "8",
+             "-H", "User-Agent: Mozilla/5.0 (compatible; HermesAgent/2.0)",
+             lite_url],
+            capture_output=True, text=True, timeout=10)
+        if proc.returncode == 0:
+            html = proc.stdout
+            results = []
+            # 解析结果行: <a href="URL">Title</a><span class="link-text">Description</span>
+            rows = _re.findall(
+                r'<a[^>]*href="([^"]+)"[^>]*>\s*([^<]+)\s*</a>\s*<span[^>]*class="[^"]*link-text[^"]*"[^>]*>(.*?)</span>',
+                html, _re.DOTALL)
+            if not rows:
+                rows = _re.findall(
+                    r'<a[^>]*href="(https?://[^"]+)"[^>]*>([^<]+)</a>.*?<span[^>]*>(.*?)</span>',
+                    html, _re.DOTALL)
+            for url, title, desc in rows[:6]:
+                title = _re.sub(r'<[^>]+>', '', title).strip()
+                desc = _re.sub(r'<[^>]+>', '', desc).strip()
+                if title and url.startswith("http") and "duckduckgo" not in url:
+                    results.append({"title": title, "url": url, "description": desc[:200]})
+            if results:
+                return {"query": query, "results": results, "source": "duckduckgo.com"}
+    except Exception:
+        pass
+
+    return {"query": query, "error": "搜索无结果，请换个关键词试试"}
 
 
 def _call_llm_api(llm_messages, model, api_key, base_url, provider, with_tools=True):
@@ -552,11 +684,14 @@ def _call_llm_api(llm_messages, model, api_key, base_url, provider, with_tools=T
         "model": model,
         "messages": llm_messages,
         "temperature": 0.7,
-        "max_tokens": 4096,
+        "max_tokens": 2048,
     }
     if with_tools:
         payload_dict["tools"] = TOOLS
         payload_dict["tool_choice"] = "auto"
+    # DeepSeek v4: 禁用 thinking 模式避免 reasoning_content 爆炸
+    if "deepseek" in model.lower():
+        payload_dict["thinking"] = {"type": "disabled"}
 
     tmpfile = "/tmp/hermes_llm_request.json"
     with open(tmpfile, "w") as f:
@@ -604,24 +739,42 @@ def chat_with_llm(messages, model=None, provider=None):
     if not api_key:
         return {"error": "未配置 LLM API 密钥，请在设置中配置", "needs_config": True}
 
-    # 构建消息列表
+    # 构建消息列表。仅当内存使用 >= 90% 时清空历史，否则保留全部
     llm_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    for msg in messages:
-        role = msg.get("role", "user")
-        # 跳过之前对话中的 system 角色（已有 SYSTEM_PROMPT）
-        if role == "system":
-            continue
-        content = msg.get("content", "")
-        # 跳过空内容
-        if not content and role != "tool":
-            continue
-        llm_messages.append({"role": role, "content": content})
+    cleared = False
+
+    # 检查内存使用率
+    try:
+        with open("/proc/meminfo") as f:
+            mi = f.read()
+        total = int(re.search(r"MemTotal:\s*(\d+)", mi).group(1))
+        avail = int(re.search(r"MemAvailable:\s*(\d+)", mi).group(1))
+        mem_pct = (total - avail) / total * 100
+    except Exception:
+        mem_pct = 0
+
+    if mem_pct >= 90:
+        cleared = True
+        # 内存紧张，只保留最后一条用户消息
+        user_msgs = [m for m in messages if m.get("role") == "user"]
+        if user_msgs:
+            llm_messages.append({"role": "user", "content": user_msgs[-1].get("content", "")})
+    else:
+        # 内存充足，保留全部历史
+        for msg in messages:
+            role = msg.get("role", "user")
+            if role == "system":
+                continue
+            content = msg.get("content", "")
+            if not content and role not in ("tool", "assistant"):
+                continue
+            llm_messages.append({"role": role, "content": content})
 
     total_usage = {}
     final_model = model
 
-    # Function calling 循环 — 最多 10 轮
-    for iteration in range(10):
+    # Function calling 循环 — 最多 5 轮
+    for iteration in range(5):
         result, err = _call_llm_api(llm_messages, model, api_key, base_url, provider)
 
         if err:
@@ -647,15 +800,12 @@ def chat_with_llm(messages, model=None, provider=None):
         # 检查是否有 tool_calls
         tool_calls = message.get("tool_calls")
         if tool_calls:
-            # 将 AI 的 tool_call 消息加入对话 (保留 reasoning_content 兼容 DeepSeek)
+            # 将 AI 的 tool_call 消息加入对话 (不传 reasoning_content，已在请求中禁用 thinking)
             assistant_msg = {
                 "role": "assistant",
                 "content": message.get("content") or "",
                 "tool_calls": tool_calls
             }
-            if message.get("reasoning_content"):
-                rc = message["reasoning_content"]
-                assistant_msg["reasoning_content"] = rc[:800] if len(rc) > 800 else rc
             llm_messages.append(assistant_msg)
 
             # 执行每个工具调用
@@ -680,14 +830,21 @@ def chat_with_llm(messages, model=None, provider=None):
             continue
 
         # 纯文本回复 — 结束循环
-        return {
+        resp = {
             "response": message.get("content", ""),
             "model": final_model,
             "usage": total_usage,
         }
+        if cleared:
+            resp["cleared"] = True
+        return resp
 
     # 超过最大轮数
-    return {"response": "操作已执行，但需要更多轮次。请简化你的请求。", "model": final_model, "usage": total_usage}
+    return {
+        "response": "操作步骤过多，请简化你的请求后重试。",
+        "model": final_model,
+        "usage": total_usage,
+    }
 
 
 # ---------------------------------------------------------------------------

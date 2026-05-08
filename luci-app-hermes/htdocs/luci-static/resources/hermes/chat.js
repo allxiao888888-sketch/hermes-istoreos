@@ -59,6 +59,11 @@ function hermesSendMessage() {
                 }
             } else {
                 var response = data.response || '(无响应)';
+                // 如果服务端因内存不足清空了历史，同步清空前端
+                if (data.cleared) {
+                    hermesChatMessages = [];
+                    hermesAddMessage('system', '🔄 内存使用过高，对话已自动重置');
+                }
                 hermesAddMessage('assistant', response, false, data.model);
                 hermesChatMessages.push({
                     role: 'assistant',
