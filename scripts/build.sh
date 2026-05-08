@@ -7,9 +7,10 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-HERMES_ROUTER_API_DIR="$SCRIPT_DIR/hermes-router-api"
-LUCI_APP_DIR="$SCRIPT_DIR/luci-app-hermes"
-DIST_DIR="$SCRIPT_DIR/dist"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+HERMES_ROUTER_API_DIR="$ROOT_DIR/hermes-router-api"
+LUCI_APP_DIR="$ROOT_DIR/luci-app-hermes"
+DIST_DIR="$ROOT_DIR/dist"
 
 echo "========================================"
 echo " Hermes Agent for iStoreOS v2.0 构建"
@@ -22,17 +23,16 @@ echo ""
 # =============================================================================
 echo "[1/3] 验证文件结构..."
 
-# 检查所有必需文件
+# 检查所有必需文件 (使用 luasrc/ 标准目录)
 REQUIRED_FILES=(
     "$HERMES_ROUTER_API_DIR/server.py"
     "$LUCI_APP_DIR/Makefile"
-    "$LUCI_APP_DIR/store.json"
-    "$LUCI_APP_DIR/root/usr/lib/lua/luci/controller/hermes.lua"
-    "$LUCI_APP_DIR/root/usr/lib/lua/luci/model/cbi/hermes.lua"
-    "$LUCI_APP_DIR/root/usr/lib/lua/luci/view/hermes/dashboard.htm"
-    "$LUCI_APP_DIR/root/usr/lib/lua/luci/view/hermes/chat.htm"
-    "$LUCI_APP_DIR/root/usr/lib/lua/luci/view/hermes/control.htm"
-    "$LUCI_APP_DIR/root/usr/lib/lua/luci/view/hermes/about.htm"
+    "$LUCI_APP_DIR/luasrc/controller/hermes.lua"
+    "$LUCI_APP_DIR/luasrc/model/cbi/hermes.lua"
+    "$LUCI_APP_DIR/luasrc/view/hermes/dashboard.htm"
+    "$LUCI_APP_DIR/luasrc/view/hermes/chat.htm"
+    "$LUCI_APP_DIR/luasrc/view/hermes/control.htm"
+    "$LUCI_APP_DIR/luasrc/view/hermes/about.htm"
     "$LUCI_APP_DIR/root/etc/config/hermes"
     "$LUCI_APP_DIR/root/etc/init.d/hermes-router-api"
     "$LUCI_APP_DIR/htdocs/luci-static/resources/hermes/hermes.js"
@@ -73,17 +73,17 @@ mkdir -p "$BUILD_DIR"
 # ---- 复制 LuCI 插件文件 ----
 echo "  复制 LuCI 插件文件..."
 
-# 控制器
+# 控制器 (luasrc/controller → usr/lib/lua/luci/controller)
 mkdir -p "$BUILD_DIR/root/usr/lib/lua/luci/controller"
-cp "$LUCI_APP_DIR/root/usr/lib/lua/luci/controller/hermes.lua" "$BUILD_DIR/root/usr/lib/lua/luci/controller/"
+cp "$LUCI_APP_DIR/luasrc/controller/hermes.lua" "$BUILD_DIR/root/usr/lib/lua/luci/controller/"
 
-# CBI 模型
+# CBI 模型 (luasrc/model → usr/lib/lua/luci/model)
 mkdir -p "$BUILD_DIR/root/usr/lib/lua/luci/model/cbi"
-cp "$LUCI_APP_DIR/root/usr/lib/lua/luci/model/cbi/hermes.lua" "$BUILD_DIR/root/usr/lib/lua/luci/model/cbi/"
+cp "$LUCI_APP_DIR/luasrc/model/cbi/hermes.lua" "$BUILD_DIR/root/usr/lib/lua/luci/model/cbi/"
 
-# 视图
+# 视图 (luasrc/view → usr/lib/lua/luci/view)
 mkdir -p "$BUILD_DIR/root/usr/lib/lua/luci/view/hermes"
-cp "$LUCI_APP_DIR/root/usr/lib/lua/luci/view/hermes/"*.htm "$BUILD_DIR/root/usr/lib/lua/luci/view/hermes/"
+cp "$LUCI_APP_DIR/luasrc/view/hermes/"*.htm "$BUILD_DIR/root/usr/lib/lua/luci/view/hermes/"
 
 # 前端资源
 mkdir -p "$BUILD_DIR/www/luci-static/resources/hermes"
@@ -119,7 +119,7 @@ tar czf "$DIST_DIR/luci-app-hermes.tar.gz" .
 echo "  ✓ 离线安装包: $DIST_DIR/luci-app-hermes.tar.gz"
 
 # 生成完整源码包
-cd "$SCRIPT_DIR"
+cd "$ROOT_DIR"
 tar czf "$DIST_DIR/hermes-istoreos-full-src.tar.gz" \
     --exclude="dist" \
     --exclude="venv" \
