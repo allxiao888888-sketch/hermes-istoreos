@@ -10,7 +10,7 @@ PKG_NAME:=luci-app-hermes
 PKG_VERSION:=2.0.0
 PKG_RELEASE:=1
 
-PKG_LICENSE:=GPL-2.0
+PKG_LICENSE:=MIT
 PKG_MAINTAINER:=OpenClaw Hermes
 
 LUCI_TITLE:=Hermes Agent - Local AI assistant for iStoreOS

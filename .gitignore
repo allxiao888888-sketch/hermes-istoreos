@@ -1,24 +1,30 @@
 # Python
-__pycache__/
-*.py[cod]
 *.pyc
 *.pyo
-venv/
-.venv/
-*.egg-info/
-dist/
+__pycache__/
 
 # macOS
 .DS_Store
-*.swp
-*.swo
-*~
+Thumbs.db
 
 # IDE
 .idea/
 .vscode/
 *.sublime-*
 
-# Logs
+# Build output
+dist/
+release/
+*.ipk
+*.bak
 *.log
+
+# Dependencies
+venv/
+.venv/
+
+# Temporary
 /tmp/
+*.swp
+*.swo
+*~
