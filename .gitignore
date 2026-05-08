@@ -12,6 +12,14 @@ Thumbs.db
 .vscode/
 *.sublime-*
 
+# Node
+node_modules/
+
+# ENV
+.env
+.env.*
+!.env.example
+
 # Build output
 dist/
 release/

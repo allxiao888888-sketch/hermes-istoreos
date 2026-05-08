@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  🌐 <a href="https://raw.githack.com/allxiao888888-sketch/hermes-istoreos/main/hermes-istoreos-operation-guide.html">图形操作指南</a>
+  🌐 <a href="https://raw.githack.com/allxiao888888-sketch/hermes-istoreos/main/docs/hermes-istoreos-operation-guide.html">图形操作指南</a>
 </p>
 
 ---
@@ -153,7 +153,6 @@ hermes-istoreos-plugin/
 │
 ├── luci-app-hermes/                     # iStoreOS LuCI 插件
 │   ├── Makefile                         # OpenWRT SDK 构建文件
-│   ├── store.json                       # iStoreOS 商店元数据
 │   └── root/                            # 路由器文件系统
 │       ├── etc/config/hermes            # 默认配置
 │       ├── etc/init.d/hermes-router-api # 开机自启脚本
@@ -168,10 +167,14 @@ hermes-istoreos-plugin/
 │   ├── build-ipk.sh                     # .ipk 包构建
 │   └── build-ipk.py                     # .ipk 包构建 (Python)
 │
+├── Images/                               # 图片资源
+│   └── .gitkeep
 ├── Screenshots/                         # 截图（待补充）
 ├── docs/                                # 文档
-│   └── operation-guide.md               # 图形操作指南
-├── hermes-istoreos-operation-guide.html # 在线操作指南
+│   ├── operation-guide.md               # 图形操作指南
+│   └── hermes-istoreos-operation-guide.html  # 在线操作指南
+├── release/                             # 发布目录
+│   └── .gitkeep
 ├── CHANGELOG.md                         # 更新日志
 ├── LICENSE                              # MIT 许可证
 └── README.md                            # 本文件

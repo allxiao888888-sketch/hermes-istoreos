@@ -21,16 +21,14 @@ Hermes Router API — Zero-dependency Python HTTP API Server for iStoreOS
 
 import argparse
 import base64
-import fcntl
 import http.server
 import json
-import logging
 import os
 import re
 import shlex
 import signal
 import socket
-import struct
+import socketserver
 import subprocess
 import sys
 import time
@@ -46,11 +44,21 @@ CONFIG_FILE = "/etc/config/hermes.json"
 DEFAULT_PORT = 9120
 DEFAULT_HOST = "127.0.0.1"  # 默认只监听本地，前端通过 LuCI 代理
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-)
-logger = logging.getLogger("hermes-api")
+# Simple logger (avoids dependency on 'logging' module not in python3-light)
+def _log(level, msg):
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sys.stderr.write(f"{ts} [{level}] {msg}\n")
+    sys.stderr.flush()
+
+class SimpleLogger:
+    def info(self, msg): _log("INFO", msg)
+    def warning(self, msg): _log("WARNING", msg)
+    def error(self, msg): _log("ERROR", msg)
+    def exception(self, msg):
+        import traceback
+        _log("ERROR", f"{msg}\n{traceback.format_exc()}")
+
+logger = SimpleLogger()
 
 # ---------------------------------------------------------------------------
 # 配置管理
@@ -430,6 +438,24 @@ def chat_with_llm(messages, model=None, provider=None):
     except Exception as e:
         logger.error(f"LLM API 调用异常: {e}")
         return {"error": f"调用异常: {e}"}
+
+
+# ---------------------------------------------------------------------------
+# Custom HTTPServer for python3-light compatibility
+# (avoids socket.getfqdn() which requires encodings.idna)
+# ---------------------------------------------------------------------------
+
+class HermesHTTPServer(socketserver.TCPServer):
+    """HTTPServer compatible with python3-light (no getfqdn dependency)"""
+    allow_reuse_address = True
+    
+    def server_bind(self):
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind(self.server_address)
+        self.server_address = self.socket.getsockname()
+        host, port = self.server_address[:2]
+        self.server_name = socket.gethostname() or str(host)
+        self.server_port = port
 
 
 # ---------------------------------------------------------------------------
@@ -865,7 +891,7 @@ def main():
     parser.add_argument("--host", type=str, default=DEFAULT_HOST, help=f"监听地址 (默认: {DEFAULT_HOST})")
     args = parser.parse_args()
 
-    server = http.server.HTTPServer((args.host, args.port), HermesAPIHandler)
+    server = HermesHTTPServer((args.host, args.port), HermesAPIHandler)
     logger.info(f"🎯 Hermes Router API v2.0.0 启动: http://{args.host}:{args.port}")
     logger.info(f"📁 配置文件: {CONFIG_FILE}")
 

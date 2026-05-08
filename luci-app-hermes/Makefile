@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024-2026 Hermes Agent for iStoreOS
+# Copyright (C) 2026 OpenClaw for iStoreOS
 #
 # This is free software, licensed under the MIT License.
 #
@@ -21,12 +21,5 @@ LUCI_DEPENDS:=+python3 +python3-light +luci-lib-jsonc
 LUCI_PKGARCH:=all
 
 include $(TOPDIR)/feeds/luci/luci.mk
-
-# Install server.py to non-standard path (luci.mk doesn't handle /usr/libexec)
-define Package/luci-app-hermes/install
-	$(INSTALL_DIR) $(1)/usr/libexec/hermes-router-api
-	$(INSTALL_DATA) ./root/usr/libexec/hermes-router-api/server.py \
-		$(1)/usr/libexec/hermes-router-api/server.py
-endef
 
 # call BuildPackage - OpenWrt buildroot signature
