@@ -17,7 +17,7 @@ LUCI_TITLE:=Hermes Agent - Local AI assistant for iStoreOS
 LUCI_DESCRIPTION:=AI assistant running directly on iStoreOS router. Chat with AI \
 	via LLM API, manage packages (opkg), services, and system configuration from \
 	the router web interface. No external server required.
-LUCI_DEPENDS:=+python3 +python3-light +luci-lib-jsonc
+LUCI_DEPENDS:=+python3 +python3-light +luci-lib-jsonc +curl
 LUCI_PKGARCH:=all
 
 include $(TOPDIR)/feeds/luci/luci.mk

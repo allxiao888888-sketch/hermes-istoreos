@@ -3,6 +3,8 @@
 -%>
 <%+header%>
 
+<link rel="stylesheet" href="<%=resource%>/hermes/style.css">
+
 <div class="hermes-app" id="hermes-about">
     <div class="cbi-section">
         <h2><%:关于 Hermes Agent 插件%></h2>
@@ -82,7 +84,7 @@
         <h3><%:使用说明%></h3>
         <ol style="line-height:1.8;">
             <li><%:安装 Python3: opkg update && opkg install python3%></li>
-            <li><%>上传 hermes-router-api/server.py 到 /usr/libexec/hermes-router-api/</%></li>
+            <li><%:上传 hermes-router-api/server.py 到 /usr/libexec/hermes-router-api/%></li>
             <li><%:启动 API 服务器: python3 /usr/libexec/hermes-router-api/server.py &%></li>
             <li><%:或使用 init.d 服务: /etc/init.d/hermes-router-api start%></li>
             <li><%:进入 服务 > Hermes Agent > 设置，配置 LLM API 密钥%></li>

@@ -31,9 +31,11 @@ function handle_api()
     -- 本地 API 地址（运行在同一台路由器上）
     local api_base = "http://127.0.0.1:9120"
     
-    -- 解析请求路径和方法
-    local path = http.formvalue("path") or ""
-    local method = http.formvalue("_method") or "GET"
+    -- 解析请求路径和方法 (formvalue 可能返回 table，需要兼容)
+    local raw_path = http.formvalue("path") or ""
+    local path = (type(raw_path) == "table") and (raw_path[1] or "") or raw_path
+    local raw_method = http.formvalue("_method") or "GET"
+    local method = (type(raw_method) == "table") and (raw_method[1] or "GET") or raw_method
     local body = http.formvalue("body") or ""
     
     -- 构建目标 URL
@@ -58,44 +60,39 @@ end
 
 function http_request(url, method, body)
     local tmpfile = "/tmp/hermes_api_request_body.json"
-    local cmd = {"wget", "-q", "-O", "-", "--timeout=60"}
-    
-    -- Content-Type
-    table.insert(cmd, "--header=Content-Type: application/json")
-    table.insert(cmd, "--header=Accept: application/json")
-    
+    local cmd = {"curl", "-s", "--max-time", "60"}
+
     if method == "POST" and body and body ~= "" then
         local f = io.open(tmpfile, "w")
         if f then
             f:write(body)
             f:close()
-            table.insert(cmd, "--post-file=" .. tmpfile)
+            table.insert(cmd, "-X")
+            table.insert(cmd, "POST")
+            table.insert(cmd, "-d")
+            table.insert(cmd, "@" .. tmpfile)
         end
     end
-    
+
     table.insert(cmd, url)
-    
+
     local cmd_str = table.concat(cmd, " ")
     local proc = io.popen(cmd_str .. " 2>/dev/null", "r")
     if not proc then
-        return nil, "无法执行 wget"
+        return nil, "无法执行 curl"
     end
-    
+
     local output = proc:read("*a")
     local exit_ok, exit_code = proc:close()
-    
+
     -- 清理临时文件
     if method == "POST" then
         os.remove(tmpfile)
     end
-    
+
     if output and output ~= "" then
         return output, nil
     end
-    
-    if output then
-        return nil, "服务器返回空响应 (wget exit code: " .. tostring(exit_code) .. ")"
-    end
-    
-    return nil, "请求失败"
+
+    return nil, "服务器返回空响应 (curl exit code: " .. tostring(exit_code) .. ")"
 end

@@ -22,9 +22,7 @@ var HermesAPI = {
         return new Promise(function(resolve, reject) {
             // 使用 LuCI 内建方式
             var xhr = new XMLHttpRequest();
-            var url = location.pathname.replace(/\/[^/]+$/, '/api') + 
-                      '?path=' + encodeURIComponent(path) + 
-                      '&_method=' + method;
+            var url = location.pathname.replace(/\/[^/]+$/, '/api');
 
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
